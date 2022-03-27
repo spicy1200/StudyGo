@@ -41,17 +41,10 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
-type blog_article struct {
-	title string
-	count string
-}
-type mysqlConfig struct {
-	username  string
-	password  string
-	localhost string
-	port      int
-	charset   string
-}
+var (
+	errNoRows int = 404
+	dbErr     int = 500
+)
 
 func connectMysql() (*sql.DB, error) {
 	db, err := sql.Open("mysql", "root:123456@tcp(localhost:3306)/blog?charset=utf8")
@@ -79,11 +72,6 @@ func Dao(search string, db *sql.DB) error {
 	}
 	return nil
 }
-
-var (
-	errNoRows int = 404
-	dbErr     int = 500
-)
 
 func main() {
 

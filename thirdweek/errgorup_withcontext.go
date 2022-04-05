@@ -17,7 +17,7 @@ type result struct {
 	sum  [md5.Size]byte
 }
 
-func main() {
+func errogroup_context() {
 	// 读取文件信息
 	data, err := MD5All(context.Background(), "./secondweek")
 	if err != nil {

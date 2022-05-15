@@ -1,11 +1,11 @@
 # sudygo
-/**
+
     main 函数是作为goroutine 执行
     操作系统 线程 和 goroutine 的关系？
         线程被操作系统调度
         goroutine 实际上是被Go 运行时runtime来调度的，最终这些goroutine 它都可以映射到
         到某一个线程上，执行单元对操作系统来说它不认识goroutine,它只认识操作系统线程
-        go runtime 实际上就是负责把这些goroutine 调度到某一个Go runtime的一个逻辑处理器（P）
+        runtime 实际上就是负责把这些goroutine 调度到某一个Go runtime的一个逻辑处理器（P）
         P 像一个队列，把这些任务挂到队列上，然后相当于最终是在各个线程去队列里面捞到一个任务去执行
         通过go runtime 的特性使的我们可以调度数以万计的goroutine,以惊人的效率和能力执行并发运行
 
@@ -101,4 +101,154 @@
         fan-out fan-in
         cancellation
 
-**/
+
+
+    控制反转、依赖注入
+    PO 数据表结构
+    DO 在PO的基础上逻辑
+    BIZ 业务逻辑
+        data
+            | - PO
+        biz
+            业务逻辑
+            | - Do
+    pkg 与业务无关
+    task 定时任务
+    web http 业务数据格式规范
+
+
+    protobuf 入门
+
+    unit test 
+        assert
+    
+    mockgen 
+        gomock.newController
+        expect().Bar()
+
+    test suite
+
+    pprof 工具分析 
+
+    Tdd 测试驱动
+        1. 容易编写并且启动测试的情况
+        2. 场景复杂
+    
+ 
+    隔离
+        动静隔离、读写分离
+            动静隔离 
+                1. cacheline
+                2. 数据库mysql 表设计中避免 bufferpool 过期 datapage 可以缓存表的行
+                    a. binlog 订阅
+            读写分离
+                1. 主从、replicaset、CQRS
+                 
+                    a. 由于CQRS 的本质是对于读写操作的分离，所以比较简单的Cqrs的做法是
+                        CQ两端数据库表共享，CQ两端只是在上层代码上分离。
+              轻重隔离
+                1. 核心/非核心的故障域的差异隔离（机器资源、依赖资源）
+               
+              快慢隔离
+                1. 
+    # 故障域
+        根据业务的轻重机器的资源是否需要独占和非独占，独占的情况下防止其他微服务的对主业务的影响。
+    # topic
+    # hystrix
+    # resilience4j  
+        早期转码集群被超大视频攻击、导致转码大量延迟
+        缩略图服务，被大图实时缩略吃完CPU,导致正常的小图无法展示
+        数据库实例cgroup未隔离，导致大sql引起的集体故障
+        info日志量过大，导致异常error 日志采集延迟。
+
+
+过载保护
+    利特尔法则
+
+
+如何计算接近峰值时的系统吞吐？
+    cup: 使用一个单独的线程采样
+    inflight 当前 服务中正在进行的请求的数量
+    pass&RT: 最近 5s pass 每100ms采样窗口内成功请求的数量，RT为单个采样窗口中平均响应时间
+
+限流
+    限流是指在一段时间内，定义某个客户或者应用可以接收或处理多少个请求的技术（Auto Scaling）
+
+        需要考虑的情况
+            1. 令牌桶、漏桶针对单个节点，无法对分布式限流 
+            2.QPS 限流
+                a. 不同的请求可能需要数量迥异的资源来处理
+                b. 某一种静态的QPS 限流不是特别准
+            3. 每个用户设置限制
+                a. 全局过载发生时候，针对某些“异常”进行控制
+                b. 一定程度的“超卖”配额
+            4. 按照优先级丢弃
+            5. 拒绝请求也需要成本
+            
+    分布式限流
+        redis incr  quota 表示速率
+
+        最大最小公平分享(max-min fairness)
+
+        critical_plus
+        critical
+        sheddable_plus
+        sheddable
+    熔断（circuit breakers）
+
+        为了限制操作的持续时间，我们可以使用超时可以防止挂起操作并保证系统的响应
+            1. 依赖的资源出现大量的错误
+            2. 某个用户超过资源的配额时，后端任务会快速拒绝请求
+
+        CAS 只有一个请求过来
+
+        gutter
+
+        positive feedback 用户总是积极重试，访问一个不达的服务
+
+        jitter
+    
+    降级
+        mttr 平均修复时间
+    
+    负载均衡
+        p2c 算法，随机选取两个节点进行打分，选择更优的节点
+        
+    最佳实践
+    sop
+    dirt 载脏实验
+
+
+
+    链路超时
+        header 中传递go-timeout 进行超时时间向下游传递
+        RPC 链路超时控制
+            a. 通过RPC协议 timeout 传递超时时间
+            b. 中断
+            c. 确定超时时间 PM 确定
+        业务链路控制超时
+
+
+    重试 考虑的因素 重试次数 重试间隔 进程内重试跨进程重试
+        1. 进程内重试
+        2. 跨进程重试
+            a. 数据库方案
+            b. 分布式任务中心方案：直接存放数据库，定时轮训数据库
+                在分布式任务中心注册一个任务，定时任务或者重复任务
+            c. 延时消息方案: 发送一个延时消息给MQ,MQ会在约定的时间投递给消费者，消费者执行重试
+        
+    #### 布隆过滤器
+
+    mysql binlog 同步技术 cannal
+
+    ## 缓存模式 cache aside
+
+        1. cache aside
+        2. 
+    
+    ### redis sord set
+        lazy (懒加载)
+    
+
+    可用性
+        singleflight dns 回源
